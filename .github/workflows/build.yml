@@ -1,3 +1,4 @@
+
 name: Build Android APK
 on: [push]
 
@@ -5,16 +6,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install System Dependencies
         run: |
-          pip install --upgrade buildozer cython Kivy
+          sudo apt-get update
+          sudo apt-get install -y build-essential ccache git python3-dev libffi-dev libssl-dev libsqlite3-dev zlib1g-dev openjdk-17-jdk
+
+      - name: Install Python Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install --upgrade buildozer cython
 
       - name: Build with Buildozer
         run: |
@@ -22,7 +29,7 @@ jobs:
           buildozer -v android debug
 
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: package
           path: bin/*.apk
